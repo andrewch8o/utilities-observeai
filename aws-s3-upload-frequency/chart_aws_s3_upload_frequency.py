@@ -16,10 +16,12 @@ Parameters:
         <customer-name>-list-objects-out.json
         <customer-name>-uploads-frequqncy.png
 """
+import json
 import boto3
 import argparse
 from tqdm import tqdm
 from urllib.parse import urlparse
+from datetime import date, datetime
 
 class CONTEXT:
     s3_data = []
@@ -48,6 +50,7 @@ def parse_args():
 
 def scan_s3_path():
     client = boto3.client('s3')
+    print(f'Scanning {CONFIG.ARGS.s3url}')
     s3_url = urlparse(CONFIG.ARGS.s3url)
     s3_bucket = s3_url.netloc
     s3_prefix = s3_url.path[1:]
@@ -64,6 +67,22 @@ def scan_s3_path():
             pass
     return listing
 
+def save_stats_to_file(s3_scan_output: dict):
+    '''Saves data obtained from S3 listing to file'''
+    def json_serialize(obj):
+        '''Handles serialization of datetime objects'''
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        raise TypeError(f'Type {type(obj)} serialization not implemented')
+    
+    out_file_name = f'{CONFIG.ARGS.label}-list-objects-out.json'
+    print(f'Saving S3 stats to file ')
+    with open(out_file_name, 'w') as out_file:
+        json.dump(s3_scan_output, fp=out_file, default=json_serialize)
+
+
 if __name__ == '__main__':
     parse_args()
-    print(CONFIG.ARGS.s3url, CONFIG.ARGS.label, sep=', ')
+    s3_stats = scan_s3_path()
+    save_stats_to_file(s3_stats)
+
