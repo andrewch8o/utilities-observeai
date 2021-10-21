@@ -16,6 +16,30 @@ Parameters:
         <customer-name>-list-objects-out.json
         <customer-name>-uploads-frequqncy.png
 """
+import argparse
+
+class CONFIG:
+    class ARGS:
+        s3path = None,
+        label  = None 
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=__doc__, 
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        '--s3-path',
+        required=True,
+        help='S3 path to scan recursively')
+    parser.add_argument(
+        '--output-label', 
+        required=True, 
+        help='Label to use for output files (dashboard name, for example)')
+    args = parser.parse_args()
+    CONFIG.ARGS.s3path = args.s3_path
+    CONFIG.ARGS.label  = args.output_label
+
 
 if __name__ == '__main__':
-    pass
+    parse_args()
+    print(CONFIG.ARGS.s3path, CONFIG.ARGS.label, sep=', ')
