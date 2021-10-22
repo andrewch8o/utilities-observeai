@@ -49,3 +49,4 @@ Thumbs.db
 *.wmv
 
 aws-s3-upload-frequency/p3env/
+aws-s3-upload-frequency/.ipynb_checkpoints/
