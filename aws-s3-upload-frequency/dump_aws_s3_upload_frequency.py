@@ -1,20 +1,16 @@
 """
-The script solves problem of promptly-ish visualizing frequency of file uploads under particular S3 path.
+The script solves problem of dumping last updated timestamp for objects uploads under particular S3 path.
 
 Approach:
     * Use boto3 list-objects API to pull info for all the files under S3 path ( can take long time )
     * Dump the extracted data to JSON file in the local folder
-    * Load JSON file into Pandas dataframe
-    * Generate chart of the frequency of uploads "bucketed" in 5-min intervals (a.k.a how many files were uploaded every 5 min)
-    * Save the chart as image in the local folder
 
 Parameters:
     --s3-url s3://<bucket>/s3/path/
         S3 path to process the files under ( recursively )
     --output-label <customer-name>
-        Used to generate output files
+        Used to generate output file
         <customer-name>-list-objects-out.json
-        <customer-name>-uploads-frequqncy.png
 """
 import json
 import boto3
@@ -22,9 +18,6 @@ import argparse
 from tqdm import tqdm
 from urllib.parse import urlparse
 from datetime import date, datetime
-
-class CONTEXT:
-    s3_data = []
 
 class CONFIG:
     class ARGS:
@@ -48,10 +41,10 @@ def parse_args():
     CONFIG.ARGS.label  = args.output_label
 
 
-def scan_s3_path():
+def scan_s3_path(from_s3_url):
     client = boto3.client('s3')
-    print(f'Scanning {CONFIG.ARGS.s3url}')
-    s3_url = urlparse(CONFIG.ARGS.s3url)
+    print(f'Scanning {from_s3_url}')
+    s3_url = urlparse(from_s3_url)
     s3_bucket = s3_url.netloc
     s3_prefix = s3_url.path[1:]
     paginator = client.get_paginator('list_objects_v2')
@@ -83,6 +76,6 @@ def save_stats_to_file(s3_scan_output: dict):
 
 if __name__ == '__main__':
     parse_args()
-    s3_stats = scan_s3_path()
+    s3_stats = scan_s3_path(from_s3_url=CONFIG.ARGS.s3url)
     save_stats_to_file(s3_stats)
 
