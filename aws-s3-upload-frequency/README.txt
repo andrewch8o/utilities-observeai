@@ -6,4 +6,4 @@ Initial setup (one time):
     * Activate new virtual environment
         > source ./p3env/bin/activate
     * Install dependencies
-        > pip -r requirements.txt
+        > pip install -r requirements.txt
