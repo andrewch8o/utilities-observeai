@@ -15,14 +15,18 @@ Parameters:
 import json
 import boto3
 import argparse
+import pandas as pd
 from tqdm import tqdm
+import plotly.offline as py
+import matplotlib.pyplot as plt
 from urllib.parse import urlparse
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 
 class CONFIG:
     class ARGS:
-        s3url = None,
+        s3url = None
         label = None 
+        cutoff_days = 30 
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -78,4 +82,18 @@ if __name__ == '__main__':
     parse_args()
     s3_stats = scan_s3_path(from_s3_url=CONFIG.ARGS.s3url)
     save_stats_to_file(s3_stats)
+    df2 = pd.DataFrame.from_dict(
+        data = s3_stats,
+        orient='index', 
+        columns=['last_updated']
+    )
+    filtered_df = df2[ df2['last_updated'] > datetime.now(tz=timezone.utc) - timedelta(days=CONFIG.ARGS.cutoff_days) ]
+    stats_df = filtered_df.resample('5min', on='last_updated').count()
+    chart = {
+        'x' : stats_df.index,
+        'y' : stats_df['last_updated'],
+        'type': 'bar'
+    }
+    py.plot({'data': [chart]}, filename=f'{CONFIG.ARGS.label}-frequency-upload-chart.html')
+    
 
