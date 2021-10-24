@@ -7,3 +7,5 @@ Initial setup (one time):
         > source ./p3env/bin/activate
     * Install dependencies
         > pip install -r requirements.txt
+
+The first time you run the script it will be slow as Python pre-compiles newly installed modules
