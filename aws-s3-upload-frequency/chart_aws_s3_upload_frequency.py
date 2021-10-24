@@ -21,7 +21,6 @@ import argparse
 import pandas as pd
 from tqdm import tqdm
 import plotly.offline as py
-import matplotlib.pyplot as plt
 from urllib.parse import urlparse
 from datetime import date, datetime, timezone, timedelta
 
